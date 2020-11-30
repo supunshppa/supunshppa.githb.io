@@ -1,0 +1,241 @@
+<html>
+
+     <head>
+<title>Map</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<style>
+    #map{position: absolute;top:200px;bottom: 0;left: 0;right: 0;}
+</style>
+
+
+
+</head>
+<body>
+
+  <style>
+  body {
+    background-color: #b5bcfa;
+
+    color: #FFFFFF;
+
+  }
+  
+</style>
+
+
+  <script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-database.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyBCb8CIW7ZK7cwTwbGzbbejqUOhSe2-4zQ",
+    authDomain: "mapppa-1.firebaseapp.com",
+    databaseURL: "https://mapppa-1.firebaseio.com",
+    projectId: "mapppa-1",
+    storageBucket: "mapppa-1.appspot.com",
+    messagingSenderId: "399236438479",
+    appId: "1:399236438479:web:20a770ebaeb862a6b59aba",
+    measurementId: "G-1SD3TFL0E3"
+  };
+  
+  
+  
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  
+
+    
+
+</script>
+<br>
+    <!-- <button onclick="getLocation()">Try It</button> -->
+    <button onclick="getLocation()" type="button" class="btn btn-outline-success">Get Location</button>
+    <button onclick="remove()" type="button" class="btn btn-outline-success">remove</button>
+   <button onclick="outDistance()" type="button" class="btn btn-outline-success">Distance</button>
+   <button onclick="wr()" type="button" class="btn btn-outline-danger btn-lg">confirm</button>
+    <p id="demo"></p>
+    
+    
+    <div id="map"></div>
+    <script>
+        var map =L.map('map').setView([0,0],1);
+
+        L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=e1puL1yUEdg9hYH3fRoC',{
+            attribution:'<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
+        }).addTo(map);
+        
+        // L.marker([7.2955, 80.6356]).addTo(map);
+
+        L.control.scale().addTo(map);
+
+
+        //****************************************
+   
+
+        
+
+
+//*********************************************
+
+
+    map.setView([0, 0]);
+    // setTimeout(function(){
+    //     map.setZoom(3);
+    //     map.setView([7.2955, 80.6356]);
+    // }, null);
+
+
+
+
+// setZoomAround([7.2955, 80.6356] , [7] zoom, <Zoom options> options)
+
+  
+
+    </script>
+
+<script>
+var x = document.getElementById("demo");
+var lo;
+var la;
+var poplat;
+var poplng;
+var flo;
+var fla;
+var max=0;
+var distance;
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else { 
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  
+  }
+
+  
+}
+
+function showPosition(position) {
+//   x.innerHTML = "Latitude: " + position.coords.latitude + 
+//   "<br>Longitude: " + position.coords.longitude;
+
+ la=position.coords.latitude;
+ lo=position.coords.longitude;
+//  x.innerHTML="logsdjfgjhg"+la;
+L.marker([la, lo]).addTo(map);
+map.setZoom(10);
+        map.setView([la, lo]);
+
+        L.circle([la, lo],10000, {
+color : 'darkgreen',
+fillColor: 'green',
+fillOpacity: 0.3
+}).addTo(map);
+
+
+
+  
+}
+var layerGroup = L.layerGroup().addTo(map);
+
+map.on('click',function(e){
+  if(max<1){
+    var poplocation =e.latlng;
+  var marker = L.marker([e.latlng.lat,e.latlng.lng]).addTo(map);
+  marker.addTo(layerGroup);
+  poplat=e.latlng.lat;
+  poplng=e.latlng.lng;
+  }
+  max=max+1;
+});
+
+// function popup()
+// {
+//   var i=1;
+//   if(i==1)
+//   {
+//   flo= poplng;
+//   fla=poplat;
+//   x.innerHTML = flo;
+//   x.innerHTML = fla;
+
+//   }
+//   i=i+1;
+// }
+
+
+function remove(){
+ layerGroup.clearLayers().addTo(map);
+//  flo=null;
+//  fla= null;
+ poplat=null;
+ poplng=null;
+ max=0;
+}
+
+
+
+        
+function getDistance() {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(la- poplat);  // deg2rad below
+  var dLon = deg2rad(lo-  poplng); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(poplat)) * Math.cos(deg2rad(la)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; // Distance in km
+  distance=(Math.round(d));
+  return (Math.round(d));
+
+  
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}
+
+function outDistance()
+{
+
+  document.getElementById("demo").innerHTML = getDistance();
+} 
+
+var j=0;
+function wr(){
+
+ 
+
+j=j+1;
+firebase.database().ref("user/user_ID"+j).update({
+          user_location_latitude:la,
+          user_location_longitude:lo,
+          user_select_loacaton_latitude:poplat,
+          user_select_loacaton_longitude:poplng,
+          user_Distance:distance
+
+
+          
+      });
+    }
+
+
+</script>
+
+   
+</body>
+</html>
